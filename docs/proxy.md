@@ -249,29 +249,29 @@ arr[-1] // c
 
 ```javascript
 var pipe = (function () {
-  var pipe;
   return function (value) {
-    pipe = [];
-    return new Proxy({}, {
-      get: function (pipeObject, fnName) {
-        if (fnName == "get") {
-          return pipe.reduce(function (val, fn) {
+    var funcStack = [];
+    var oproxy = new Proxy({} , {
+      get : function (pipeObject, fnName) {
+        if (fnName === 'get') {
+          return funcStack.reduce(function (val, fn) {
             return fn(val);
-          }, value);
+          },value);
         }
-        pipe.push(window[fnName]);
-        return pipeObject;
+        funcStack.push(window[fnName]);
+        return oproxy;
       }
     });
+
+    return oproxy;
   }
 }());
 
 var double = n => n * 2;
-var pow = n => n * n;
-var reverseInt = n => n.toString().split('').reverse().join('') | 0;
+var pow    = n => n * n;
+var reverseInt = n => n.toString().split("").reverse().join("") | 0;
 
-pipe(3).double.pow.reverseInt.get
-// 63
+pipe(3).double.pow.reverseInt.get; // 63
 ```
 
 上面代码设置Proxy以后，达到了将函数名链式使用的效果。
